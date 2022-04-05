@@ -4,8 +4,8 @@
 #include <stdlib.h>
 #include <time.h>
 #include "rk4.h"
-#define N 100
-#define DL 0.5 //d-m interaction coef
+#define N 150
+#define DL 0.8 //d-m interaction coef
 #define DP 0.8 //dumping coef
 #define INITIAL 0
 
@@ -43,7 +43,7 @@ int main(int argc, char *argv[]){
 
 
   tspan[0]=0.0;
-  tspan[1]=20.0;
+  tspan[1]=300.0;
   steps=(tspan[1]-tspan[0])/(dr*dr*0.1);
 
   t = ( double * ) malloc ( ( steps + 1 ) * sizeof ( double ) );
@@ -135,27 +135,28 @@ void skyrmion_init_values(double *m0,double *r){
   for (i=3;i<3*N-3;i=i+3){
     j=i/3;
     // ---- Domain Wall -----
-
+    //
     // m0[i]=1/cosh(r[j]-5);
     // m0[i+2]=tanh(r[j]-5);
 
     //---- Belavin Polyakov ----
-    m0[i+1]=2*r[j]/(1+r[j]*r[j]);
-    m0[i+2]=(r[j]*r[j]-1)/(r[j]*r[j]+1);
+    // m0[i+1]=2*r[j]/(1+r[j]*r[j]);
+    // m0[i+2]=(r[j]*r[j]-1)/(r[j]*r[j]+1);
 
     //---- Skyrmionium ----
-    // m0[i+0]=(2*r[j]+2*r[j]*r[j])/(1+2*r[j]+2*r[j]*r[j]);
-    // m0[i+0]=(2*r[j])/(1+2*r[j]*r[j]);
-    // m0[i+1]=(2*r[j]*r[j])/(1+2*r[j]*r[j]);
-    // m0[i+2]=(1)/(1+2*r[j]*r[j]);
+
+    //--- transform----
+    double n1=1/cosh(r[j]-5);
+    double n3 =tanh(r[j]-5);
+    m0[i+1]=2*n3*n1;
+    m0[i+2]=2*n3*n3-1;
+
+    // ---ansatz---
+    // double C=(r[j]*r[j]+1)/r[j];
+    // m0[i+1]=2*C/(1+C*C);
+    // m0[i+2]=(1-C*C)/(1+C*C);
   }
 }
-//
-// void DMinteraction(double *m,double *r,double *dmInter,int i){
-//   int j=i/3;
-//
-//
-// }
 
 double ANenergy(double *m, double *r, double dr){
   double integral = 0;

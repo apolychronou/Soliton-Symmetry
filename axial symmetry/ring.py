@@ -38,15 +38,15 @@ def cartesian_1D(mr,mphi):
 
 def readFile(fileName):
         fileObj = open(fileName, "r") #opens the file in read mode
-        fileObj.readline();
+        # fileObj.readline();
         words = fileObj.read().split(" ") #puts the file into an array
         fileObj.close()
         return words
 
-m=readFile("./data/vortex.txt");
+m=readFile("./data/vort0.txt");
 m=m[0:-1];
-N=600;
-NZ=300;
+N=400;
+NZ=200;
 r=np.zeros(N);
 z=np.zeros(NZ);
 for i in range(0,len(r)):
@@ -76,65 +76,65 @@ m=m.astype(float);
 # m=m.reshape(NZ,N,3);
 
 s1=0;
-s2=70;
-phi=np.linspace(0,2*pi,len(r[s1:int(s2/2):]));
+s2=30;
+phi=np.linspace(0,2*pi,len(r[s1:int(s2/1):1]));
 X,Y=cartesian_coord(r[s1:s2], phi);
 i=0;
 fig, ax = plt.subplots(figsize = (16, 14));
 fig2, ax2 = plt.subplots(figsize = (16, 14));
 
-for z_slice in range (145,155,1):
+for z_slice in range (95,106,1):
     i=i+1;
     
     # --------- 2D PLOTS ---------------------
     
-    m1,m2,m3=cartesian(mr[z_slice][s1:s2:],mphi[z_slice][s1:s2:],mz[z_slice][s1:s2:],phi);
+    # m1,m2,m3=cartesian(mr[z_slice][s1:s2:],mphi[z_slice][s1:s2:],mz[z_slice][s1:s2:],phi);
     
-    l=7;
+    # l=2;
     
     
-    fig, ax = plt.subplots(figsize = (16, 14));
-    plt1=ax.quiver(X[::l], Y[::l], m1[::l], m2[::l],m3[::l],scale=4,headlength=4,\
-              headwidth=4,cmap=plt.cm.jet,scale_units='xy');
-    ticks=np.arange(-r[s2],r[s2]+0.5,0.5);
-    ax.xaxis.set_ticks(ticks)
-    ax.yaxis.set_ticks(ticks)
-    plt.colorbar(plt1,ax=ax, cmap=plt.cm.jet)
+    # fig, ax = plt.subplots(figsize = (16, 14));
+    # plt1=ax.quiver(X[::l], Y[::l], m1[::l], m2[::l],m3[::l],scale=30,headlength=3.2,\
+    #           headwidth=3.2,cmap=plt.cm.jet,width=0.003);
+    # ticks=np.arange(-r[s2],r[s2]+0.5,0.5);
+    # ax.xaxis.set_ticks(ticks)
+    # ax.yaxis.set_ticks(ticks)
+    # plt.colorbar(plt1,ax=ax, cmap=plt.cm.jet)
 
-    plt.title("z_slice="+str(round(z[z_slice],2)));
+    # plt.title("z_slice="+str(round(z[z_slice],2)));
     
-    
-    # plt.savefig("./figs/z_slice="+str(round(z[z_slice],2))+".png", dpi=100)
-    
+        
    # ---------- 1D PLOTS ----------------------
     
-    # -------- mr-mphi
-#     l=5;
-#     y=np.zeros(len(r[s1:s2:l]));
-#     y=y-z[z_slice];
-#     # y=np.ones(len(r[s1:s2:l]));
-#     # fig, ax = plt.subplots(figsize = (18, 10));
-#     plt1=ax.quiver(r[s1:s2:l],y,mr[z_slice][s1:s2:l],mphi[z_slice][s1:s2:l],\
-#               mz[z_slice][s1:s2:l],cmap=plt.cm.jet,scale=25,headlength=4,headwidth=4);
-#     # plt.title("z_slice="+str(round(z[z_slice],2)));
-#     title = ax.set_title("mr-mphi", fontsize='large')
+    # # -------- mr-mphi
+    l=1;
+    y=np.zeros(len(r[s1:s2:l]));
+    y=y+z[z_slice];
+    plt1=ax.quiver(r[s1:s2:l],y,mphi[z_slice][s1:s2:l],mz[z_slice][s1:s2:l],\
+              scale=25,width=0.005,pivot='middle',headlength=3.5,headwidth=3.5);
+    title = ax.set_title("mr-mz", fontsize='large')
+    matplotlib.rc('xtick', labelsize=30) 
+    matplotlib.rc('ytick', labelsize=30)
+    title = ax.set_title("mphi-mz", fontsize='large')
 
     
-#     # plt.savefig("./figs/z_slice="+str(round(z[z_slice],2))+".png", dpi=100)
-#     # plt.savefig("./figs/"+str(i)+".png", dpi=100)
 
-#     # ------- mr- mz
-#     plt2=ax2.quiver(r[s1:s2:l],y,mr[z_slice][s1:s2:l],mz[z_slice][s1:s2:l],\
-#               mphi[z_slice][s1:s2:l],cmap=plt.cm.jet,scale=25,headlength=4,headwidth=4);
+    # ------- mr- mz---------------
+    plt2=ax2.quiver(r[s1:s2:l],y,mr[z_slice][s1:s2:l],mz[z_slice][s1:s2:l],\
+              scale=25,width=0.005,pivot='middle',headlength=3.5,headwidth=3.5);
+    title = ax2.set_title("mr-mz", fontsize='large')
+    matplotlib.rc('xtick', labelsize=30) 
+    matplotlib.rc('ytick', labelsize=30)
+    title = ax2.set_title("mr-mz", fontsize='large')
 
-#     title = ax2.set_title("mr-mz", fontsize='large')
-#     # plt.title("z_slice1="+str(round(z[z_slice],2)));
-    
-#     #plt2.savefig("./figs/z_slice="+str(round(z[z_slice],2))+".png", dpi=100)
-#     #plt2.savefig("./figs/"+str(i)+".png", dpi=100)
 
 # plt.colorbar(plt1,ax=ax, cmap=plt.cm.jet)
 # plt.colorbar(plt2,ax=ax2, cmap=plt.cm.jet)
 
+for i in range(0,len(m),3):
+    norm=m[i]**2+m[i+1]**2+m[i+2]**2;
+    # print(norm);
+    if abs(1-norm)>1e-1:
+        print(norm);
 
 

@@ -2,23 +2,29 @@ import numpy as np
 import matplotlib.pyplot as plt
 from math import *
 
-FILES=1;
+FILES=11;
 START=0
 kinisi=np.zeros([FILES,2],type(int));
+minim=np.zeros(FILES);
+
+N=400;
+NZ=200;
+centz=NZ/2;
+centr=10;
+
 for li in range(START,FILES):
     def readFile(fileName):
             fileObj = open(fileName, "r") #opens the file in read mode
-            fileObj.readline();
+            # fileObj.readline();
             words = fileObj.read().split(" ") #puts the file into an array
             fileObj.close()
             return words
     
     
     # m=readFile("./data/vort"+str(li)+".txt");
-    m=readFile("./data/3D"+str(li)+".txt");
+    m=readFile("./data/vort"+str(li)+".txt");
     m=m[0:-1];
-    N=200;
-    NZ=100;
+
     r=np.zeros(N);
     z=np.zeros(NZ);
     for i in range(0,len(r)):
@@ -44,70 +50,105 @@ for li in range(START,FILES):
 
 # ------------------- CONTOUR PLOT ------------------
     
-    # fig = plt.figure()
+    fig = plt.figure()
 
-    # R, Z = np.meshgrid(r, z);
-    # plt.contour(R, Z, mz,levels=[-0.8,-0.4,0,0.4,0.8], colors='black');
+    R, Z = np.meshgrid(r, z);
+    plt.contour(R, Z, mz,levels=[-0.95,0,0.9], colors='black');
 
 
-    # plt.xlim([0,15]);
-    # plt.ylim([-10,10]);
-    # plt.savefig("./figs/contour_t="+str(li)+".png", dpi=100)
+    plt.xlim([0,3]);
+    plt.ylim([-8,8]);
+    plt.savefig("./figs/contour_t="+str(li)+".png", dpi=100)
 
 #  ----------------- 3D PLOT ----------------------
 
-    R, Z = np.meshgrid(r, z);
-    fig = plt.figure()
-    ax = plt.axes(projection='3d')
-    ax.plot_wireframe(R, Z, mz);
-    ax.set_xlabel('r')
-    ax.set_ylabel('z')
-    ax.set_zlabel('m_z');
+    # R, Z = np.meshgrid(r, z);
+    # fig = plt.figure()
+    # ax = plt.axes(projection='3d')
+    # ax.plot_wireframe(R, Z, mz);
+    # ax.set_xlabel('r')
+    # ax.set_ylabel('z')
+    # ax.set_zlabel('m_z');
     
     
     
-    fig.set_size_inches(14, 12)
-    plt.savefig("./figs/mz"+str(li)+".png", dpi=100)
+    # fig.set_size_inches(14, 12)
+    # plt.savefig("./figs/mz"+str(li)+".png", dpi=100)
     
     
-    fig = plt.figure()
-    ax = plt.axes(projection='3d')
-    ax.plot_wireframe(R, Z, mr);
-    ax.set_xlabel('r')
-    ax.set_ylabel('z')
-    ax.set_zlabel('m_r');
-    fig.set_size_inches(14, 12)
-    plt.savefig("./figs/mr"+str(li)+".png", dpi=100)
+    # fig = plt.figure()
+    # ax = plt.axes(projection='3d')
+    # ax.plot_wireframe(R, Z, mr);
+    # ax.set_xlabel('r')
+    # ax.set_ylabel('z')
+    # ax.set_zlabel('m_r');
+    # fig.set_size_inches(14, 12)
+    # plt.savefig("./figs/mr"+str(li)+".png", dpi=100)
     
-    fig = plt.figure()
-    ax = plt.axes(projection='3d')
-    ax.plot_wireframe(R, Z, mphi);
-    ax.set_xlabel('r')
-    ax.set_ylabel('z')
-    ax.set_zlabel('m_phi');
-    fig.set_size_inches(14, 12);
-    plt.savefig("./figs/mphi"+str(li)+".png", dpi=100)
+    # fig = plt.figure()
+    # ax = plt.axes(projection='3d')
+    # ax.plot_wireframe(R, Z, mphi);
+    # ax.set_xlabel('r')
+    # ax.set_ylabel('z')
+    # ax.set_zlabel('m_phi');
+    # fig.set_size_inches(14, 12);
+    # plt.savefig("./figs/mphi"+str(li)+".png", dpi=100)
 
+
+    #------- movement coordinates ----------- 
+    plz1=centz-15;
+    plz2=centz+15;
+    plr1=centr-5;
+    plr2=centr+5;
+    while(plz1<0):
+        plz1+=1;
+        plz2+=1;
+    while(plr1<0):
+        plr1+=1;
+        plr2+=1;
+    plz1=int(plz1);plz2=int(plz2);
+    plr1=int(plr1);plr2=int(plr2);
+  
+    result_vort8 = np.where(mz== mz[plz1:plz2,plr1:plr2].min());
     
-    result_vort8 = np.where(m == mz.min());
-    
-    indices = np.where(result_vort8[2]==2)[0][0]
+    # indices = np.where(result_vort8[2]==2)[0][0]
+    # indices = result_vort8[0][0]
     lista=[];
+    minim[li]=mz[plz1:plz2,plr1:plr2].min();
 
+    cr1=0;
+    cr2=0;
     for i in result_vort8:
-        lista.append(i[indices]);
+        # lista.append(i[indices]);
+        cr1+=1;
+        if cr1==1:
+            for k in i:
+                if(k>=plz1 and k<=plz2):
+                    lista.append(k);
+                else:
+                    cr2+=1;
+        else:
+            lista.append(i[cr2]);
+            
+
+
         
     # lilist.append(lista); 
     kinisi[li]=np.array(lista[0:2]);
+    centz=int(kinisi[li][0]);
+    centr=int(kinisi[li][1]);
+    
+    
 kinisi=kinisi.astype(int);
 
-out=np.zeros([FILES,2]);
+out=np.zeros([FILES,3]);
 j=0;
 for i in kinisi:
     out[j][0]=z[i[0]]
     out[j][1]=r[i[1]];
+    out[j][2]=minim[j];
     j=j+1;
-np.savetxt("movement.csv", out, delimiter=",");
+np.savetxt("./data/movement.csv", out, delimiter=",");
     # plt.savefig("./figs/mphi.png", dpi=100)
 
 # fig = plt.figure()

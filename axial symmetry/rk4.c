@@ -2,6 +2,8 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <time.h>
+#include <string.h>
+#include <errno.h>
 # include "space.h"
 # include "rk4.h"
 
@@ -62,6 +64,17 @@ void rk4 ( void dydt ( double t, double u[], double f[], double *r,double *z,dou
   double *u2;
   double *u3;
   double norm=0;
+  int points,tpoints;
+  int filecounter=0;
+  char *countername;
+  char filename[17]="./data/vort";
+  FILE *f;
+  extern int errno;
+  errno=0;
+  int errnum;
+
+  countername=(char *)malloc(sizeof(char)*1);
+
 
   f0 = ( double * ) malloc ( m * sizeof ( double ) );
   f1 = ( double * ) malloc ( m * sizeof ( double ) );
@@ -73,14 +86,35 @@ void rk4 ( void dydt ( double t, double u[], double f[], double *r,double *z,dou
   u3 = ( double * ) malloc ( m * sizeof ( double ) );
 
   dt = ( tspan[1] - tspan[0] ) / ( double ) ( n );
-
+  points=n/10;
+  tpoints=points;
   j = 0;
   t[0] = tspan[0];
+
+  sprintf(countername,"%d",filecounter);
+  // strcat(filename,"./data/vort");
+  strcpy(filename,"./data/vort\0");
+  strcat(filename, countername);
+  strcat(filename, ".txt");
+  f=fopen(filename,"w+");
+
+  if(f==NULL){
+    errnum = errno;
+    fprintf(stderr, "Value of errno: %d\n", errno);
+    perror("Error printed by perror open");
+    fprintf(stderr, "Error opening file: %s\n", strerror( errnum ));
+    exit(1);
+  }
+
+
   for ( i = 0; i < m; i++ )
   {
     y[i+j*m] = y0[i];
     y[i+m]=y0[i];
+    fprintf(f, "%lf ", y0[i]);
   }
+  filecounter++;
+  fclose(f);
 
   for ( j = 0; j < n; j++ )
   {
@@ -130,13 +164,43 @@ void rk4 ( void dydt ( double t, double u[], double f[], double *r,double *z,dou
        y[i+(j*0+1)*m] = u0[i] + dt * ( f0[i] + 2.0 * f1[i] + 2.0 * f2[i] + f3[i] ) / 6.0;
     }
     norm=0;
+    if(j==tpoints){
+      if(filecounter>10){
+        countername=(char*)realloc(countername,sizeof(char)*2);
+      }
+      sprintf(countername,"%d",filecounter);
+      // strcat(filename,"./data/vort");
+      strcpy(filename,"./data/vort\0");
+      strcat(filename, countername);
+      strcat(filename, ".txt");
+      f=fopen(filename,"w+");
+
+      if(f==NULL){
+        errnum = errno;
+        fprintf(stderr, "Value of errno: %d\n", errno);
+        perror("Error printed by perror open");
+        fprintf(stderr, "Error opening file: %s\n", strerror( errnum ));
+        exit(1);
+      }
+    }
+
     for(i=0; i<m; i=i+3){
       norm=sqrt(pow(y[i+(j*0+1)*m],2)+pow(y[i+1+(j*0+1)*m],2)+pow(y[i+2+(j*0+1)*m],2));
       y[i+(j*0+1)*m]/=norm;
       y[i+1+(j*0+1)*m]/=norm;
       y[i+2+(j*0+1)*m]/=norm;
+      if(j==tpoints){
+        fprintf(f, "%lf ", y[i+0+(j*0+1)*m]);
+        fprintf(f, "%lf ", y[i+1+(j*0+1)*m]);
+        fprintf(f, "%lf ", y[i+2+(j*0+1)*m]);
+      }
     }
 
+    if(j==tpoints){
+      filecounter++;
+      fclose(f);
+      tpoints+=points;
+    }
 
 
   }
@@ -151,7 +215,7 @@ void rk4 ( void dydt ( double t, double u[], double f[], double *r,double *z,dou
   free ( u1 );
   free ( u2 );
   free ( u3 );
-
+  free (countername);
   return;
 }
 /******************************************************************************/

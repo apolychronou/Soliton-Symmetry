@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib
 from math import cos,sin,pi
 
 
@@ -45,6 +46,9 @@ mphi=mphi.astype(float);
 mz=np.array(a[2::3]);
 mz=mz.astype(float);
 
+m=np.array(a);
+m=m.astype(float);
+
 plt.plot(r,mz,'g',label="m_z");
 plt.xticks(np.arange(min(r), max(r), 0.5));
 plt.title("m vs r");
@@ -58,7 +62,7 @@ plt.legend();
 
 figure = plt.gcf()
 figure.set_size_inches(12, 10)
-plt.savefig("./figs/phi90.png", dpi=100);
+# plt.savefig("./figs/phi90.png", dpi=100);
 
 # x=np.zeros(len(r));
 # y=np.zeros(len(r));
@@ -69,16 +73,18 @@ plt.savefig("./figs/phi90.png", dpi=100);
 # for i in range(0,len(r)):
 #     print((x[i]**2+y[i]**2+mz[i]**2));
 
-s=60;
+s=80;
 # print("cylindrical")
-phi=np.linspace(0,2*pi,len(r[:int(s/2):]))
+phi=np.linspace(0,2*pi,len(r[:int(s/3):]))
 m1,m2,m3=cartesian(mr[:s:],mphi[:s:],mz[:s:],phi);
 X,Y=cartesian_coord(r[:s], phi);
-l=4;
+l=7;
 fig, ax = plt.subplots(figsize = (14, 12));
 plt1=ax.quiver(X[::l], Y[::l], m1[::l], m2[::l],m3[::l],scale=4,headlength=4,\
           headwidth=4,cmap=plt.cm.jet,units='xy');
 plt.colorbar(plt1,ax=ax, cmap=plt.cm.jet)
+matplotlib.rc('xtick', labelsize=20) 
+matplotlib.rc('ytick', labelsize=20)
 
 # ax.set_aspect('equal')
 # ticks=np.arange(X[::l].min(),X[::l].max(),0.5);
@@ -87,11 +93,15 @@ plt.colorbar(plt1,ax=ax, cmap=plt.cm.jet)
 
 # plt.savefig("./figs/x-y-phi90.png", dpi=100);
 
-# for i in range(0,len(r)):
-#     print((mr[i]**2+mphi[i]**2+mz[i]**2));
+for i in range(0,len(r)):
+    print((mr[i]**2+mphi[i]**2+mz[i]**2));
 
 
 # for i in range(0,len(r)):
 #     print((m1[i]**2+m2[i]**2+mz[i]**2));
 
-
+for i in range(0,len(m),3):
+    norm=m[i]**2+m[i+1]**2+m[i+2]**2;
+    # print(norm);
+    if abs(1-norm)>1e-1:
+        print(norm);

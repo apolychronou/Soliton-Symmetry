@@ -6,18 +6,16 @@
 #include <complex.h>
 #include "rk4.h"
 #include "space.h"
-#define N 600 //r grid
-#define NZ 300 //z grid
-// #define DL 0.636 //d-m interaction coef
-// #define DP 0.01 //dumping coef
-#define DL 0.5
-#define DP 0.8
+#define N 400 //r grid
+#define NZ 200 //z grid
+#define DL 0.63 //d-m interaction coef
+// #define DL 0.0
+#define DP 0.01//dumping coef
 #define AN 1  //anisotropy coef
-#define APROJ 2 //stereographic projection
+#define APROJ 1 //stereographic projection
 #define PHI M_PI // stereographic projection angle
-#define T_STOP 20
-#define INIT 1
-
+#define T_STOP 4
+#define INIT 0
 
 
 float deriv2r(double *m,int i,double dr);
@@ -36,7 +34,8 @@ double DMenergy(double *m, double *r,double *z, double dr,double dz);
 
 int main(int argc, char *argv[]){
   // double *y;
-  double m0[3*N*NZ]={0};
+  // double m0[3*N*NZ]={0};
+  double *m0;
   int i=0;
   double dr=0.1;
   double dz=0.1;
@@ -65,9 +64,8 @@ int main(int argc, char *argv[]){
   y=(double*)malloc((3*N*NZ*2)*sizeof(double));
   m=(double*)malloc((3*N*NZ)*sizeof(double));
   prevm=(double*)malloc((3*N*NZ)*sizeof(double));
-
-
-  vortexRing_init_values(m0,r,z);
+  m0=y;
+  vortexRing_init_values(y,r,z);
   // skyrmion_init_values(m0,r,z);
 
   double init_dm=DMenergy(m0,r,z,dr,dz);
@@ -84,31 +82,28 @@ int main(int argc, char *argv[]){
 
   clock_t begin = clock();
   rk4 ( LLequation, tspan, m0, steps, 3*N*NZ, t, y,r,z,dr,dz );
+
   clock_t end = clock();
   double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
 
-
-
-// for (i=0;i<3*N*NZ;i++){
-//     prevm[i]=y[i];
-// }
-  double ANener = ANenergy(m,r,z,dr,dz);
-  double DMener = DMenergy(m,r,z,dr,dz);
-  double EXener = EXenergy(m,r,z,dr,dz);
+  //
+  // double ANener = ANenergy(m,r,z,dr,dz);
+  // double DMener = DMenergy(m,r,z,dr,dz);
+  // double EXener = EXenergy(m,r,z,dr,dz);
   // double sum=2*DMener+3*ANener+EXener;
-  printf("Energy: %.10lf\t", ANener+DMener+EXener);
+  // printf("Energy: %.10lf\t", ANener+DMener+EXener);
 //   printf("Prev energy: %.10lf\n",ANenergy(prevm,r,z,dr,dz)+ DMenergy(prevm,r,z,dr,dz) + EXenergy(prevm,r,z,dr,dz));
-  printf("Initial energy: %.10lf\t",ANenergy(m0,r,z,dr,dz)+ DMenergy(m0,r,z,dr,dz) + EXenergy(m0,r,z,dr,dz));
+  // printf("Initial energy: %.10lf\t",ANenergy(m0,r,z,dr,dz)+ DMenergy(m0,r,z,dr,dz) + EXenergy(m0,r,z,dr,dz));
 //   if(ANener!=0){
 //   printf("sum1= %.10lf\n",sum/EXener);
 //   }
   printf("execution time: %lf\n",time_spent);
 
-  for (i=0;i<3*N*NZ;i++){
-    // m[i]=y[1*3*N*NZ+i];
-    printf("%.5lf ",y[1*3*N*NZ+i]);
-
-  }
+  // for (i=0;i<3*N*NZ;i++){
+  //   // m[i]=y[1*3*N*NZ+i];
+  //   printf("%.5lf ",y[1*3*N*NZ+i]);
+  //
+  // }
 //   int k=0;
 //   for (i=0;i<3*N*NZ;i=i+3*N){
 //   for (k=0;k<3*N;k++){
@@ -158,7 +153,8 @@ void vortexRing_init_values(double *m0,double *r,double *z){
   int ri,zi,i,j;
   // double complex omega,omega_bar;
   double a=1*APROJ;
-  double A,B,C;
+  // double A,B,C,E;
+  double real,im;
 
   for (zi=0;zi<3*N*NZ;zi=zi+3*N){
     for (ri=0;ri<3*N;ri=ri+3){
@@ -171,27 +167,49 @@ void vortexRing_init_values(double *m0,double *r,double *z){
         m0[ri+zi]=0;m0[ri+zi+1]=0;m0[ri+zi+2]=-1;
       }
       else{
-        // c=2*a*r[i]/(pow(2*a*z[j],2)+pow(r[i]*r[i]+z[j]*z[j]-a*a,2));
-        //
+        // double c=2*a*r[i]/(pow(2*a*z[j],2)+pow(r[i]*r[i]+z[j]*z[j]-a*a,2));
         // m0[ri+zi+0]=-c*4*a*z[j]/(1+c*2*a*r[i]);
         // m0[ri+zi+1]=c*2*(r[i]*r[i]+z[j]*z[j]-a*a)/(1+c*2*a*r[i]);
         // m0[ri+zi+2]=(1-c*2*a*r[i])/(1+c*2*a*r[i]);
 
-        double scalen=exp(-(r[i]+z[j])/a);
-        double scalep=exp((r[i]+z[j])/a);
-        scalen=1;scalep=1;
-        A=2*a*z[j];B=r[i]*r[i]+z[j]*z[j]-a*a;
-        C=(A*A+B*B)*scalep+scalen*(2*a*r[i])*(2*a*r[i]);
-        m0[ri+zi+0]=2*a*r[i]*(2*A*cos(PHI*1)+2*B*sin(PHI*1))/C;
-        m0[ri+zi+1]=2*a*r[i]*(2*A*sin(PHI*1)-2*B*cos(PHI*1))/C;
-        m0[ri+zi+2]=((A*A+B*B)*scalep-(2*a*r[i])*(2*a*r[i])*scalen)/C;
+        // double scalen=exp(-(r[i]+z[j])/a);
+        // double scalep=exp((r[i]+z[j])/a);
+        // scalen=1;scalep=1;
+        // A=2*a*z[j];B=r[i]*r[i]+z[j]*z[j]-a*a;
+        // C=(A*A+B*B)*scalep+scalen*(2*a*r[i])*(2*a*r[i]);
+        // m0[ri+zi+0]=2*a*r[i]*(2*A*cos(PHI*1)+2*B*sin(PHI*1))/C;
+        // m0[ri+zi+1]=2*a*r[i]*(2*A*sin(PHI*1)-2*B*cos(PHI*1))/C;
+        // m0[ri+zi+2]=((A*A+B*B)*scalep-(2*a*r[i])*(2*a*r[i])*scalen)/C;
+
+        // A=2*a*z[j];B=r[i]*r[i]+z[j]*z[j]-a*a;
+        // C=2*a*r[i]/(pow(2*a*z[j],2)+pow(r[i]*r[i]+z[j]*z[j]-a*a,2));
+        // // E=exp(-r[i]*r[i]/a*a)*exp(-z[j]*z[j]/a*a);
+        // E=1;
+        // C=C*E;
+        // m0[ri+zi+0]=(2*A*cos(PHI*1)+2*B*sin(PHI*1))*C/(1+C*C*pow(r[i]*r[i]+z[j]*z[j]-a*a,2));
+        // m0[ri+zi+1]=(2*A*sin(PHI*1)-2*B*cos(PHI*1))*C/(1+C*C*pow(r[i]*r[i]+z[j]*z[j]-a*a,2));
+        // m0[ri+zi+2]=(1-C*C*pow(r[i]*r[i]+z[j]*z[j]-a*a,2))/(1+C*C*pow(r[i]*r[i]+z[j]*z[j]-a*a,2));
+
+
 
         // A=2*a*z[j];B=r[i]*r[i]+z[j]*z[j]-a*a;
         // C=pow(2*a*r[i],2)/(A*A+B*B+pow(2*a*r[i],2));
         // m0[ri+zi+0]=C*(2*A*cos(PHI*1)+2*B*sin(PHI*1));
         // m0[ri+zi+1]=C*(2*A*sin(PHI*1)-2*B*cos(PHI*1));
         // m0[ri+zi+2]=(A*A+B*B-pow(2*a*r[i],2))/(A*A+B*B+pow(2*a*r[i],2));
+        double C,E;
+        C=2*a*r[i]/(pow(2*a*z[j],2)+pow(r[i]*r[i]+z[j]*z[j]-a*a,2));
+        E=exp(-r[i]*r[i]/(a*a))*exp(-(z[j]*z[j])/(a*a));
+        // E=exp(-r[i]/(a))*exp(-(z[j])/(a));
+        // E=1;
+        C=C*E;
+        real=2*a*z[j]*C;
+        im=-(r[i]*r[i]+z[j]*z[j]-a*a)*C;
+        double oobar=(real*real+im*im);
 
+        m0[ri+zi+0]=(2*real)/(1+oobar);
+        m0[ri+zi+1]=(2*im)/(1+oobar);
+        m0[ri+zi+2]=(1-oobar)/(1+oobar);
       }
 
     }
@@ -357,6 +375,6 @@ void LLequation(double t, double *m,double *dm,double *r,double *z,double dr, do
 
     }
   }
-  boundary_conditions(dm);
+  // boundary_conditions(dm);
   // ;
 }
