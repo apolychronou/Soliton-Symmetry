@@ -4,8 +4,8 @@
 #include <stdlib.h>
 #include <time.h>
 #include "rk4.h"
-#define N 150
-#define DL 0.8 //d-m interaction coef
+#define N 100
+#define DL 0.57 //d-m interaction coef
 #define DP 0.8 //dumping coef
 #define INITIAL 0
 
@@ -43,7 +43,7 @@ int main(int argc, char *argv[]){
 
 
   tspan[0]=0.0;
-  tspan[1]=300.0;
+  tspan[1]=100.0;
   steps=(tspan[1]-tspan[0])/(dr*dr*0.1);
 
   t = ( double * ) malloc ( ( steps + 1 ) * sizeof ( double ) );
@@ -85,10 +85,10 @@ for (i=0;i<3*N;i++){
   double DMener = DMenergy(m,r,dr);
   double EXener = EXenergy(m,r,dr);
   double sum= (DMenergy(m,r,dr)+2*ANenergy(m,r,dr));
-  printf("Energy: %.10lf\t", ANener+DMener+EXener);
+  printf("Energy: %.10lf ", ANener+DMener+EXener);
   // printf("Prev energy: %.10lf\t",ANenergy(prevm,r,dr)+ DMenergy(prevm,r,dr) + EXenergy(prevm,r,dr));
-  printf("Initial energy: %.10lf\t",ANenergy(m0,r,dr)+ DMenergy(m0,r,dr) + EXenergy(m0,r,dr));
-  printf("sum1= %.10lf\t",sum/ANenergy(m,r,dr));
+  printf("Initial energy: %.10lf ",ANenergy(m0,r,dr)+ DMenergy(m0,r,dr) + EXenergy(m0,r,dr));
+  printf("sum1= %.10lf ",sum/ANenergy(m,r,dr));
   // printf("sum2= %.10lf\n",sum/(DL*DMenergy(m,r,dr)));
   printf("execution time: %lf\n",time_spent);
 
@@ -129,7 +129,7 @@ void laplace(double *m,double *r,double *laplacian,int i,double dr){
 void skyrmion_init_values(double *m0,double *r){
   int i,j;
 
-  m0[0]=0;m0[1]=0;m0[2]=-1;
+  m0[0]=0;m0[1]=0;m0[2]=1;
   m0[3*N-1]=1;m0[3*N-2]=0;m0[3*N-3]=0;
 
   for (i=3;i<3*N-3;i=i+3){

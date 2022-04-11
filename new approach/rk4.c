@@ -4,7 +4,7 @@
 # include <time.h>
 #include <string.h>
 #include <errno.h>
-# include "space.h"
+# include "axialSym.h"
 # include "rk4.h"
 
 /******************************************************************************/
@@ -63,6 +63,8 @@ void rk4 ( void dydt ( double t, double u[], double f[], double *r,double *z,dou
   double *u1;
   double *u2;
   double *u3;
+  double e_ex,e_dm,e_an,time_point;
+  double en=0;double preven=3e20;
   double norm=0;
   int points,tpoints;
   int filecounter=0;
@@ -113,10 +115,11 @@ void rk4 ( void dydt ( double t, double u[], double f[], double *r,double *z,dou
     y[i+m]=y0[i];
     fprintf(f, "%lf ", y0[i]);
   }
+  time_point=tpoints*1e-3+tspan[0];
   fprintf(f,"\n");
-  fprintf(f,"Ex=%lf  E_an=%lf  E_dm=%lf  sum=%lf",EXenergy((y0),r,z,dr,dz),
+  fprintf(f,"Ex=%lf  E_an=%lf  E_dm=%lf  sum=%lf time=%lf ",EXenergy((y0),r,z,dr,dz),
   ANenergy((y+m),r,z,dr,dz),DMenergy(y+m,r,z,dr,dz),EXenergy((y0),r,z,dr,dz)+
-  3*ANenergy((y+m),r,z,dr,dz)+2*DMenergy(y+m,r,z,dr,dz));
+  ANenergy((y+m),r,z,dr,dz)+DMenergy(y+m,r,z,dr,dz),time_point);
   filecounter++;
   fclose(f);
 
@@ -130,6 +133,11 @@ void rk4 ( void dydt ( double t, double u[], double f[], double *r,double *z,dou
       y[i+j*m*0]=y[i+(j*0+1)*m];
       u0[i] = y[i+j*m*0];
 
+    }
+    if(j==0){
+      ;
+    }else{
+      preven=en;
     }
     // norm=sqrt(norm);
     // if(norm<1e-1 && j>0){
@@ -199,17 +207,22 @@ void rk4 ( void dydt ( double t, double u[], double f[], double *r,double *z,dou
         fprintf(f, "%lf ", y[i+2+(j*0+1)*m]);
       }
     }
-
+    e_ex=EXenergy(y+m,r,z,dr,dz);
+    e_dm=DMenergy(y+m,r,z,dr,dz);
+    e_an=ANenergy(y+m,r,z,dr,dz);
+    en=e_ex+e_dm+e_an;
     if(j==tpoints){
+      time_point=tpoints*1e-3+tspan[0];
       fprintf(f,"\n");
-      fprintf(f,"Ex=%lf  E_an=%lf  E_dm=%lf  sum=%lf",EXenergy((y+m),r,z,dr,dz),
-      ANenergy((y+m),r,z,dr,dz),DMenergy(y+m,r,z,dr,dz),EXenergy((y+m),r,z,dr,dz)+
-      3*ANenergy((y+m),r,z,dr,dz)+2*DMenergy(y+m,r,z,dr,dz));
+      fprintf(f,"Ex=%lf  E_an=%lf  E_dm=%lf  sum=%lf time=%lf",e_ex,e_an,e_dm,e_ex+e_an+e_dm,time_point);
       filecounter++;
       fclose(f);
       tpoints+=points;
     }
-
+    if(fabs((en-preven)/preven)<1e-12){
+      printf("No energy variation en=%lf , preven=%lf\n",en,preven);
+      break;
+    }
 
   }
 /*

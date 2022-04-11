@@ -45,9 +45,9 @@ def readFile(fileName):
         fileObj.close()
         return words
 
-m=readFile("./data/vort0.txt");
+m=readFile("./data/vort5.txt");
 m=m[0:-1];
-N=400;
+N=300;
 NZ=200;
 r=np.zeros(N);
 z=np.zeros(NZ);
@@ -63,53 +63,46 @@ mphi=np.array(m[1::3]);
 mphi=mphi.astype(float);
 mz=np.array(m[2::3]);
 mz=mz.astype(float);
-# mz_row=mz;
 mz=mz.reshape(NZ,N);
 mr=mr.reshape(NZ,N);
 mphi=mphi.reshape(NZ,N);
 m=np.array(m);
 m=m.astype(float);
-# mr[np.where(abs(mr)<1e-3)]=0;
-# mphi[np.where(abs(mr)<1e-3)]=0;
-# mz[np.where(abs(mr)<1e-3)]=0;
 
-
-
-# m=m.reshape(NZ,N,3);
 
 s1=0;
-s2=30;
-phi=np.linspace(0,2*pi,len(r[s1:int(s2/1):1]));
+s2=60;
+phi=np.linspace(0,2*pi,len(r[s1:int(s2/3):1]));
 X,Y=cartesian_coord(r[s1:s2], phi);
 i=0;
 fig, ax = plt.subplots(figsize = (16, 14));
 fig2, ax2 = plt.subplots(figsize = (16, 14));
 
-for z_slice in range (95,106,1):
+for z_slice in range (92,103,1):
     i=i+1;
     
     # --------- 2D PLOTS ---------------------
     
-    # m1,m2,m3=cartesian(mr[z_slice][s1:s2:],mphi[z_slice][s1:s2:],mz[z_slice][s1:s2:],phi);
+    m1,m2,m3=cartesian(mr[z_slice][s1:s2:],mphi[z_slice][s1:s2:],mz[z_slice][s1:s2:],phi);
     
-    # l=2;
+    l=8;
     
     
-    # fig, ax = plt.subplots(figsize = (16, 14));
-    # plt1=ax.quiver(X[::l], Y[::l], m1[::l], m2[::l],m3[::l],scale=30,headlength=3.2,\
-    #           headwidth=3.2,cmap=plt.cm.jet,width=0.003);
-    # ticks=np.arange(-r[s2],r[s2]+0.5,0.5);
-    # ax.xaxis.set_ticks(ticks)
-    # ax.yaxis.set_ticks(ticks)
-    # plt.colorbar(plt1,ax=ax)
+    fig1, ax1 = plt.subplots(figsize = (16, 14));
+    plt3=ax1.quiver(X[::l], Y[::l], m1[::l], m2[::l],m3[::l],scale=30,headlength=3.2,\
+              headwidth=3.2,cmap=plt.cm.jet,width=0.003);
+    ticks=np.arange(-r[s2],r[s2]+0.5,0.5);
+    ax.xaxis.set_ticks(ticks)
+    ax.yaxis.set_ticks(ticks)
+    plt.colorbar(plt3,ax=ax1)
 
-    # plt.title("z_slice="+str(round(z[z_slice],2)));
+    plt.title("z_slice="+str(round(z[z_slice],2)));
     
         
    # ---------- 1D PLOTS ----------------------
     
-    # -------- mr-mphi
-    l=1;
+    # ##-------- mr-mphi
+    l=2;
     y=np.zeros(len(r[s1:s2:l]));
     y=y+z[z_slice];
     plt1=ax.quiver(r[s1:s2:l],y,mphi[z_slice][s1:s2:l],mz[z_slice][s1:s2:l],\
@@ -121,7 +114,7 @@ for z_slice in range (95,106,1):
 
     
 
-    # ------- mr- mz---------------
+    # ##------- mr- mz---------------
     plt2=ax2.quiver(r[s1:s2:l],y,mr[z_slice][s1:s2:l],mz[z_slice][s1:s2:l],\
               scale=25,width=0.005,pivot='middle',headlength=3.5,headwidth=3.5);
     title = ax2.set_title("mr-mz", fontsize='large')
@@ -130,8 +123,21 @@ for z_slice in range (95,106,1):
     title = ax2.set_title("mr-mz", fontsize='large')
 
 
-# plt.colorbar(plt1,ax=ax)
-# plt.colorbar(plt2,ax=ax2)
+
+
+
+# ## -----------1 z-slice mr,mphi,mz
+# fig3, ax3 = plt.subplots(figsize = (14, 14));
+# plt.plot(r,mz[int(NZ/2),:],'g',label="m_z");
+# plt.xticks(np.arange(min(r), max(r)+1, 1),fontsize=20);
+# plt.title("m vs r",fontsize=30);
+# plt.plot(r,mr[int(NZ/2),:],'b',label="m_r");
+# plt.plot(r,mphi[int(NZ/2),:],'r',label="m_phi");
+# plt.legend();
+
+
+
+
 
 for i in range(0,len(m),3):
     norm=m[i]**2+m[i+1]**2+m[i+2]**2;

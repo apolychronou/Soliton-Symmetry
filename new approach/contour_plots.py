@@ -7,12 +7,12 @@ START=0
 kinisi=np.zeros([FILES,2],type(int));
 minim=np.zeros(FILES);
 
-N=400;
+N=300;
 NZ=200;
 dr=0.1;
 dz=0.1;
 centz=NZ/2;
-centr=20;
+centr=40;
 energy_info=[]
 for li in range(START,FILES):
     def readFile(fileName):
@@ -55,13 +55,13 @@ for li in range(START,FILES):
     fig.set_size_inches(14, 14)
 
     R, Z = np.meshgrid(r, z);
-    plt.contour(R, Z, mz,levels=[-0.95,0,0.9], colors='black');
+    plt.contour(R, Z, mz,levels=[-0.9,-0.5,0,0.9], colors='black');
 
 
-    plt.xlim([0,3]);
+    plt.xlim([0,10]);
     plt.ylim([-7,7]);
     plt.title("t="+str(li));
-    plt.savefig("./figs/contour_t="+str(li)+".png", dpi=100)
+    # plt.savefig("./figs/contour_t="+str(li)+".png", dpi=100)
 
 #  ----------------- 3D PLOT ----------------------
 

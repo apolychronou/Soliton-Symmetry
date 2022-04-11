@@ -26,13 +26,13 @@ def cartesian_coord(r,phi):
     return x,y
 def readFile(fileName):
         fileObj = open(fileName, "r") #opens the file in read mode
-        fileObj.readline();
+        energ=fileObj.readline();
         words = fileObj.read().split(" ") #puts the file into an array
         fileObj.close()
-        return words
+        return words,energ
 
 phi=pi/2;
-a=readFile("./data/skyrm.txt");
+a,energy_info=readFile("./data/skyrm.txt");
 a=a[0:-1];
 j=int(len(a)/3);
 r=np.zeros(j);
@@ -50,8 +50,8 @@ m=np.array(a);
 m=m.astype(float);
 
 plt.plot(r,mz,'g',label="m_z");
-plt.xticks(np.arange(min(r), max(r), 0.5));
-plt.title("m vs r");
+plt.xticks(np.arange(min(r), max(r), 1));
+plt.title("m vs r",fontsize=30);
 
 
 
@@ -61,7 +61,10 @@ plt.plot(r,mphi,'r',label="m_phi");
 plt.legend();
 
 figure = plt.gcf()
-figure.set_size_inches(12, 10)
+figure.set_size_inches(14, 14);
+matplotlib.rc('xtick', labelsize=20); 
+matplotlib.rc('ytick', labelsize=20);
+
 # plt.savefig("./figs/phi90.png", dpi=100);
 
 # x=np.zeros(len(r));
@@ -80,9 +83,9 @@ m1,m2,m3=cartesian(mr[:s:],mphi[:s:],mz[:s:],phi);
 X,Y=cartesian_coord(r[:s], phi);
 l=7;
 fig, ax = plt.subplots(figsize = (14, 12));
-plt1=ax.quiver(X[::l], Y[::l], m1[::l], m2[::l],m3[::l],scale=4,headlength=4,\
+plt1=ax.quiver(X[::l], Y[::l], m1[::l], m2[::l],m3[::l],scale=4.5,headlength=4,\
           headwidth=4,cmap=plt.cm.jet,units='xy');
-plt.colorbar(plt1,ax=ax, cmap=plt.cm.jet)
+plt.colorbar(plt1,ax=ax)
 matplotlib.rc('xtick', labelsize=20) 
 matplotlib.rc('ytick', labelsize=20)
 
@@ -93,8 +96,8 @@ matplotlib.rc('ytick', labelsize=20)
 
 # plt.savefig("./figs/x-y-phi90.png", dpi=100);
 
-for i in range(0,len(r)):
-    print((mr[i]**2+mphi[i]**2+mz[i]**2));
+# for i in range(0,len(r)):
+#     print((mr[i]**2+mphi[i]**2+mz[i]**2));
 
 
 # for i in range(0,len(r)):
@@ -105,3 +108,5 @@ for i in range(0,len(m),3):
     # print(norm);
     if abs(1-norm)>1e-1:
         print(norm);
+        
+print(energy_info);

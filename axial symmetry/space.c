@@ -10,12 +10,12 @@
 #define NZ 200 //z grid
 #define DL 0.63 //d-m interaction coef
 // #define DL 0.0
-#define DP 0.01//dumping coef
+#define DP 0.005//dumping coef
 #define AN 1  //anisotropy coef
 #define APROJ 1 //stereographic projection
 #define PHI M_PI // stereographic projection angle
-#define T_STOP 4
-#define INIT 0
+#define T_STOP 0
+#define INIT 1
 
 
 float deriv2r(double *m,int i,double dr);
@@ -23,12 +23,13 @@ float deriv1r(double *m,int i, double dr);
 float deriv2z(double *m,int i,double dz);
 float deriv1r(double *m,int i,double dz);
 void laplace(double *m,double *r,double *z,double *laplacian,int ri,int zi,double dr,double dz);
-void vortexRing_init_values(double *m0,double *r, double *z);
+void vortexRing_init_values(double *m0,double *r, double *z,double a,double phi);
 void LLequation(double t, double *m,double *dm,double *r,double *z,double dr,double dz);
 void boundary_conditions(double *m);
 double EXenergy(double *m, double *r,double *z, double dr,double dz);
 double ANenergy(double *m, double *r,double *z, double dr,double dz);
 double DMenergy(double *m, double *r,double *z, double dr,double dz);
+void DMenergy_Density(double *m, double *r,double *z, double dr,double dz);
 
 
 
@@ -44,6 +45,8 @@ int main(int argc, char *argv[]){
   int steps;
   double *t;
   double tspan[2];
+  double a,phi=0;
+  FILE *f;
   // double m[3*N*NZ]={0};
   // double prevm[3*N*NZ];
   // double y[3*N*NZ*2]={0};
@@ -65,17 +68,41 @@ int main(int argc, char *argv[]){
   m=(double*)malloc((3*N*NZ)*sizeof(double));
   prevm=(double*)malloc((3*N*NZ)*sizeof(double));
   m0=y;
-  vortexRing_init_values(y,r,z);
-  // skyrmion_init_values(m0,r,z);
 
-  double init_dm=DMenergy(m0,r,z,dr,dz);
+  vortexRing_init_values(y,r,z,1,phi);
+
+  DMenergy_Density(y,r,z,dr,dz);
+  return(0);
 
   if(INIT){
-    printf("Initial DM Energy is :%.5lf\n",init_dm);
-    for(i=0;i<3*N*NZ;i++){
-      printf("%.5lf ",m0[i]);
+    f=fopen("./data/center.csv","w+");
+    fprintf(f,"a,phi,E_ex,E_an,E_dm,Sum\n");
+
+    for(a=dr;a<dr*N;a+=dr){
+      vortexRing_init_values(y,r,z,a,phi);
+      double init_dm=DMenergy(y,r,z,dr,dz);
+      double init_ex=EXenergy(y,r,z,dr,dz);
+      double init_an=ANenergy(y,r,z,dr,dz);
+      fprintf(f,"%lf, %lf, %lf, %lf, %lf, %lf\n",a,phi,init_ex,
+      init_an,init_dm,init_ex+2*init_dm+3*init_an);
     }
-    printf("\n");
+    fclose(f);
+
+    f=fopen("./data/angle.csv","w+");
+    fprintf(f,"a,phi,E_ex,E_an,E_dm,Sum\n");
+    a=1;
+    for(phi=0;phi<M_PI;phi+=0.01){
+      vortexRing_init_values(y,r,z,a,phi);
+      double init_dm=DMenergy(y,r,z,dr,dz);
+      double init_ex=EXenergy(y,r,z,dr,dz);
+      double init_an=ANenergy(y,r,z,dr,dz);
+      fprintf(f,"%lf, %lf, %lf, %lf, %lf, %lf\n",a,phi,init_ex,
+      init_an,init_dm,init_ex+2*init_dm+3*init_an);
+    }
+
+    // for(i=0;i<3*N*NZ;i++){
+    //   printf("%.5lf ",m0[i]);
+    // }
     return 1;
   }
 
@@ -149,10 +176,10 @@ void laplace(double *m,double *r,double *z,double *laplacian,int ri, int zi,doub
                +deriv2z(m,zi+ri+2,dz);
 }
 
-void vortexRing_init_values(double *m0,double *r,double *z){
+void vortexRing_init_values(double *m0,double *r,double *z,double a,double phi){
   int ri,zi,i,j;
   // double complex omega,omega_bar;
-  double a=1*APROJ;
+  // double a=1*APROJ;
   // double A,B,C,E;
   double real,im;
 
@@ -167,6 +194,7 @@ void vortexRing_init_values(double *m0,double *r,double *z){
         m0[ri+zi]=0;m0[ri+zi+1]=0;m0[ri+zi+2]=-1;
       }
       else{
+        /*
         // double c=2*a*r[i]/(pow(2*a*z[j],2)+pow(r[i]*r[i]+z[j]*z[j]-a*a,2));
         // m0[ri+zi+0]=-c*4*a*z[j]/(1+c*2*a*r[i]);
         // m0[ri+zi+1]=c*2*(r[i]*r[i]+z[j]*z[j]-a*a)/(1+c*2*a*r[i]);
@@ -197,14 +225,19 @@ void vortexRing_init_values(double *m0,double *r,double *z){
         // m0[ri+zi+0]=C*(2*A*cos(PHI*1)+2*B*sin(PHI*1));
         // m0[ri+zi+1]=C*(2*A*sin(PHI*1)-2*B*cos(PHI*1));
         // m0[ri+zi+2]=(A*A+B*B-pow(2*a*r[i],2))/(A*A+B*B+pow(2*a*r[i],2));
+
+        */
         double C,E;
         C=2*a*r[i]/(pow(2*a*z[j],2)+pow(r[i]*r[i]+z[j]*z[j]-a*a,2));
         E=exp(-r[i]*r[i]/(a*a))*exp(-(z[j]*z[j])/(a*a));
-        // E=exp(-r[i]/(a))*exp(-(z[j])/(a));
-        // E=1;
+        // E=exp(-r[i]/(a))*exp(-fabs(z[j])/(a));
+        E=1;
         C=C*E;
-        real=2*a*z[j]*C;
-        im=-(r[i]*r[i]+z[j]*z[j]-a*a)*C;
+        // real=+2*a*z[j]*C;
+        // im=-(r[i]*r[i]+z[j]*z[j]-a*a)*C;
+        real=(2*a*z[j]*cos(phi)+(r[i]*r[i]+z[j]*z[j]-a*a)*sin(phi))*C;
+        im=(2*a*z[j]*sin(phi)-(r[i]*r[i]+z[j]*z[j]-a*a)*cos(phi))*C;
+
         double oobar=(real*real+im*im);
 
         m0[ri+zi+0]=(2*real)/(1+oobar);
@@ -378,3 +411,55 @@ void LLequation(double t, double *m,double *dm,double *r,double *z,double dr, do
   // boundary_conditions(dm);
   // ;
 }
+
+
+void DMenergy_Density(double *m, double *r,double *z, double dr,double dz){
+  double integral =0;
+  int zi,ri,i,j;
+  // for (zi=NZ/2;zi<NZ/2+1;zi++){
+    printf("z,r,E_dm\n");
+    for (ri=0;ri<3*N;ri=ri+3){
+      i = ri/3;
+      j=NZ/2;
+      zi = j*3*N;
+
+      // if (r[i]==r[0] || r[i]==r[N-1] || z[j]==z[0] || z[j]==z[NZ-1]){
+      if (r[i]==r[0] || r[i]==r[N-1] ){
+        continue;
+        }
+        else{
+          integral=(deriv1r(m, ri+zi+1, dr)*m[ri+zi+2]-deriv1r(m, zi+ri+2, dr)*m[zi+ri+1]+m[zi+ri+1]*m[zi+ri+2]/r[i])*r[i];
+          printf("%lf,%lf,%lf\n",z[j],r[i],integral);
+        }
+      }
+  // }
+  integral*= 2*DL*M_PI*dr*dz;
+  // return integral;
+}
+
+/*
+void DMenergy_Density(double *m, double *r,double *z, double dr,double dz){
+  double integral =0;
+  int zi,ri,i,j;
+  for (zi=NZ/2;zi<NZ/2+1;zi++){
+    printf("z,r,E_dm\n");
+    for (ri=0;ri<3*N;ri=ri+3){
+      i = ri/3;
+      // j=NZ/2;
+      // zi = j*3*N;
+      j=zi/3/N;
+
+      // if (r[i]==r[0] || r[i]==r[N-1] || z[j]==z[0] || z[j]==z[NZ-1]){
+      if (r[i]==r[0] || r[i]==r[N-1] ){
+        continue;
+        }
+        else{
+          integral=(deriv1r(m, ri+zi+1, dr)*m[ri+zi+2]-deriv1r(m, zi+ri+2, dr)*m[zi+ri+1]+m[zi+ri+1]*m[zi+ri+2]/r[i])*r[i];
+          printf("%lf,%lf,%lf\n",z[j],r[i],integral);
+        }
+      }
+  }
+  integral*= 2*DL*M_PI*dr*dz;
+  // return integral;
+}
+*/
