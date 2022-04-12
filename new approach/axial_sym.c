@@ -1,19 +1,9 @@
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
-#include <stdlib.h>
-#include <time.h>
-#include "rk4.h"
 #include "axialSym.h"
-#define PHI M_PI // stereographic projection angle
-#define T_STOP 7
-#define A 4
-#define INIT 0
 
 int main(int argc, char *argv[]){
   // double *y;
   // double m0[3*N*NZ]={0};
-  double *m0;
+  // double *m0;
   int i=0;
   double dr=0.1;
   double dz=0.1;
@@ -23,7 +13,8 @@ int main(int argc, char *argv[]){
   double *t;
   double tspan[2];
   double a=A,phi=PHI;
-  double *y,*m,*prevm;
+  double *y;
+  // double *m,*prevm;
 
 
   for (i=0;i<N;i++){
@@ -40,9 +31,11 @@ int main(int argc, char *argv[]){
 
   t = ( double * ) malloc ( ( steps + 1 ) * sizeof ( double ) );
   y=(double*)malloc((3*N*NZ*2)*sizeof(double));
-  m=(double*)malloc((3*N*NZ)*sizeof(double));
-  prevm=(double*)malloc((3*N*NZ)*sizeof(double));
-
+  // m=(double*)malloc((3*N*NZ)*sizeof(double));
+  // prevm=(double*)malloc((3*N*NZ)*sizeof(double));
+  for (i=0;i<3*N*NZ*2;i++){
+    y[i]=0;
+  }
 
 
   if(INIT){
@@ -54,10 +47,10 @@ int main(int argc, char *argv[]){
 
   vortexRing_init_values(y,r,z,a,phi);
   // skyrmion_init_values(y,r,z);
-  m0=y;
+  // m0=y;
 
   clock_t begin = clock();
-  rk4 ( LLequation, tspan, m0, steps, 3*N*NZ, t, y,r,z,dr,dz );
+  rk4 ( moving_LLequation, tspan, y, steps, 3*N*NZ, t, y,r,z,dr,dz );
 
   clock_t end = clock();
   double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
@@ -66,7 +59,7 @@ int main(int argc, char *argv[]){
 
   free(t);
   free(y);
-  free(m);
-  free(prevm);
+  // free(m);
+  // free(prevm);
   return 0;
 }

@@ -1,11 +1,11 @@
-# include <math.h>
-# include <stdio.h>
-# include <stdlib.h>
-# include <time.h>
-#include <string.h>
-#include <errno.h>
+// # include <math.h>
+// # include <stdio.h>
+// # include <stdlib.h>
+// # include <time.h>
+// #include <string.h>
+// #include <errno.h>
 # include "axialSym.h"
-# include "rk4.h"
+// # include "rk4.h"
 
 /******************************************************************************/
 
@@ -63,19 +63,19 @@ void rk4 ( void dydt ( double t, double u[], double f[], double *r,double *z,dou
   double *u1;
   double *u2;
   double *u3;
-  double e_ex,e_dm,e_an,time_point;
+  double e_ex=0,e_dm=0,e_an=0,time_point;
   double en=0;double preven=3e20;
   double norm=0;
   int points,tpoints;
   int filecounter=0;
   char *countername;
-  char filename[17]="./data/vort";
-  FILE *f;
+  char filename[17];
+  FILE *f=NULL;
   extern int errno;
   errno=0;
   int errnum;
 
-  countername=(char *)malloc(sizeof(char)*1);
+  countername=(char *)malloc(sizeof(char)*2);
 
 
   f0 = ( double * ) malloc ( m * sizeof ( double ) );
@@ -87,13 +87,16 @@ void rk4 ( void dydt ( double t, double u[], double f[], double *r,double *z,dou
   u2 = ( double * ) malloc ( m * sizeof ( double ) );
   u3 = ( double * ) malloc ( m * sizeof ( double ) );
 
+
+
   dt = ( tspan[1] - tspan[0] ) / ( double ) ( n );
   points=n/10;
   tpoints=points;
   j = 0;
   t[0] = tspan[0];
 
-  sprintf(countername,"%d",filecounter);
+  sprintf(countername,"%d",0);
+  countername[1]='\0';
   // strcat(filename,"./data/vort");
   strcpy(filename,"./data/vort\0");
   strcat(filename, countername);
@@ -114,12 +117,16 @@ void rk4 ( void dydt ( double t, double u[], double f[], double *r,double *z,dou
     y[i+j*m] = y0[i];
     y[i+m]=y0[i];
     fprintf(f, "%lf ", y0[i]);
+    f0[i]=0;f1[i]=0;f2[i]=0;f3[i]=0;
+    u0[i]=0;u1[i]=0;u2[i]=0;u3[i]=0;
   }
   time_point=tpoints*1e-3+tspan[0];
   fprintf(f,"\n");
-  fprintf(f,"Ex=%lf  E_an=%lf  E_dm=%lf  sum=%lf time=%lf ",EXenergy((y0),r,z,dr,dz),
+  fprintf(f,"Ex=%lf  E_an=%lf  E_dm=%lf  sum=%lf",EXenergy((y0),r,z,dr,dz),
   ANenergy((y+m),r,z,dr,dz),DMenergy(y+m,r,z,dr,dz),EXenergy((y0),r,z,dr,dz)+
-  ANenergy((y+m),r,z,dr,dz)+DMenergy(y+m,r,z,dr,dz),time_point);
+  ANenergy((y+m),r,z,dr,dz)+DMenergy(y+m,r,z,dr,dz));
+  fprintf(f,"\n");
+  fprintf(f,"t=%1.2lf\n",0.00);
   filecounter++;
   fclose(f);
 
@@ -177,10 +184,14 @@ void rk4 ( void dydt ( double t, double u[], double f[], double *r,double *z,dou
     }
     norm=0;
     if(j==tpoints){
-      if(filecounter>10){
-        countername=(char*)realloc(countername,sizeof(char)*2);
-      }
+      if(filecounter>=10){
+        countername=(char*)realloc(countername,sizeof(char)*3);
+        sprintf(countername,"%d",filecounter);
+        countername[2]='\0';
+      }else{
       sprintf(countername,"%d",filecounter);
+      countername[1]='\0';
+      }
       // strcat(filename,"./data/vort");
       strcpy(filename,"./data/vort\0");
       strcat(filename, countername);
@@ -214,7 +225,9 @@ void rk4 ( void dydt ( double t, double u[], double f[], double *r,double *z,dou
     if(j==tpoints){
       time_point=tpoints*1e-3+tspan[0];
       fprintf(f,"\n");
-      fprintf(f,"Ex=%lf  E_an=%lf  E_dm=%lf  sum=%lf time=%lf",e_ex,e_an,e_dm,e_ex+e_an+e_dm,time_point);
+      fprintf(f,"Ex=%lf  E_an=%lf  E_dm=%lf  sum=%lf",e_ex,e_an,e_dm,e_ex+e_an+e_dm);
+      fprintf(f,"\n");
+      fprintf(f,"t=%1.2lf\n",time_point);
       filecounter++;
       fclose(f);
       tpoints+=points;

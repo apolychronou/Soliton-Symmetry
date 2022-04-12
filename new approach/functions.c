@@ -1,8 +1,8 @@
 #include "axialSym.h"
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
-#include <stdlib.h>
+// #include <stdio.h>
+// #include <string.h>
+// #include <math.h>
+// #include <stdlib.h>
 // #define N 400 //r grid
 // #define NZ 200 //z grid
 // #define DL 0.63 //d-m interaction coef
@@ -37,8 +37,8 @@ void laplace(double *m,double *r,double *z,double *laplacian,int i, int j,double
 }
 
 void vortexRing_init_values(double *m0,double *r,double *z,double a,double phi){
-  int i,j,ind;
-  double real,im;
+  int i=0,j=0,ind=0;
+  double real=0,im=0;
 
   for (j=0;j<NZ;j++){
     for (i=0;i<N;i++){
@@ -72,18 +72,18 @@ void vortexRing_init_values(double *m0,double *r,double *z,double a,double phi){
 }
 
 int magnIndex(int i, int j){
-  int ind;
+  int ind=0;
   ind=3*N*j+3*i;
   return ind;
 }
 
 void LLequation(double t, double *m,double *dm,double *r,double *z,double dr, double dz){
-  float crProd[3]={0};
-  float damp[3]={0};
+  double crProd[3]={0};
+  double damp[3]={0};
   double f[3]={0};
-  int j,i,k;
-  double dotProd;
-  int ind;
+  int j=0,i=0,k=0;
+  double dotProd=0;
+  int ind=0;
 
   for (j=1;j<NZ-1;j++){
       for(i=1;i<N-1;i++){
@@ -148,7 +148,7 @@ double DMenergy(double *m, double *r,double *z, double dr,double dz){
 
 double EXenergy(double *m, double *r,double *z, double dr,double dz){
   double integral = 0;
-  int i,j,ind;
+  int i=0,j=0,ind=0;
 
   for (j=0;j<NZ;j++){
     for(i=0;i<N;i++){
@@ -168,7 +168,7 @@ double EXenergy(double *m, double *r,double *z, double dr,double dz){
 
 double ANenergy(double *m, double *r,double *z, double dr,double dz){
   double integral = 0;
-  int j,i,ind;
+  int j=0,i=0,ind=0;
   for (j=0;j<NZ;j++){
     for (i=0;i<N;i++){
       ind=magnIndex(i,j);
@@ -204,7 +204,7 @@ void DMenergy_Density(double *m, double *r,double *z, double dr,double dz,double
 
 void DMenergy_zDensity(double *m, double *r,double *z, double dr,double dz,double a,double phi){
   double integral =0;
-  int ind,i,j;
+  int ind=0,i=0,j=0;
   FILE *f;
   vortexRing_init_values(m,r,z,a,phi);
   f=fopen("./data/z_density.csv","w+");
@@ -226,8 +226,8 @@ void DMenergy_zDensity(double *m, double *r,double *z, double dr,double dz,doubl
 }
 
 void center_angle(double *y,double *r,double *z, double dr, double dz){
-  double a,phi;
-  FILE *f;
+  double a=0,phi=0;
+  FILE *f=NULL;
   phi=0;
 
   f=fopen("./data/center.csv","w+");
@@ -257,8 +257,8 @@ void center_angle(double *y,double *r,double *z, double dr, double dz){
 }
 
 void skyrmion_init_values(double *m0,double *r,double *z){
-  int i,ind,j;
-  double n1,n3;
+  int i=0,ind=0,j=0;
+  // double n1=0,n3=0;
   //
   // k=2;
   for (j=0;j<NZ;j++){
@@ -311,10 +311,83 @@ void skyrmion_init_values(double *m0,double *r,double *z){
 }
 
 void boundary_conditions(double *m){
-  int i;
+  int i=0;
   for(i=3;i<3*N-3;i++){
     m[i]=m[i+3*N];
     m[3*N*(NZ-1)+i]=m[3*N*(NZ-2)+i];
   }
   return;
+}
+
+void moving_LLequation(double t, double *m,double *dm,double *r,double *z,double dr, double dz){
+  double crProd[3]={0};
+  double damp[3]={0};
+  double f[3]={0};
+  double deriv[3]={0};
+  int j=0,i=0,k=0;
+  double dotProd=0;
+  int ind=0;
+  double v=V;
+
+
+
+  for (j=1;j<NZ-1;j++){
+      for(i=1;i<N-1;i++){
+      dotProd=0;
+      ind=magnIndex(i,j);
+
+      laplace(m,r,z,f,i,j,dr,dz);
+      f[1]+=2*DL*(deriv1r(m,ind+2,dr));
+      f[2]+=-2*DL*(deriv1r(m,ind+1,dr)+m[ind+1]/r[i]);
+      f[2]+=AN*m[ind+2];
+      if(f[0]!=f[0] || f[1]!=f[1] || f[2]!=f[2]){
+        printf("problem with f\n");
+        exit(1);
+      }
+      deriv[0]=(deriv1z(m,ind,dz))*v;
+      deriv[1]=(deriv1z(m,ind+1,dz))*v;
+      deriv[2]=(deriv1z(m,ind+2,dz))*v;
+
+
+      // cross product
+      crProd[0]=m[ind+1]*deriv[2]-m[ind+2]*deriv[1];
+      crProd[1]=m[ind+2]*deriv[0]-m[ind]*deriv[2];
+      crProd[2]=m[ind]*deriv[1]-m[ind+1]*deriv[0];
+      if(crProd[0]!=crProd[0] || crProd[1]!=crProd[1] || crProd[2]!=crProd[2]){
+        printf("problem with crProd\n");
+        exit(1);
+      }
+      // dot product
+        dotProd+=m[ind+0]*f[0];
+        dotProd+=m[ind+1]*f[1];
+        dotProd+=m[ind+2]*f[2];
+
+      damp[0]=(dotProd*m[ind]-f[0]);
+      damp[1]=(dotProd*m[ind+1]-f[1]);
+      damp[2]=(dotProd*m[ind+2]-f[2]);
+      if(damp[0]!=damp[0] || damp[1]!=damp[1] || damp[2]!=damp[2]){
+        printf("problem with damp\n");
+        exit(1);
+      }
+      dm[ind]=crProd[0]-damp[0];
+      dm[ind+1]=crProd[1]-damp[1];
+      dm[ind+2]=crProd[2]-damp[2];
+
+    }
+  }
+  // boundary_conditions(dm);
+  // ;
+}
+
+double mz_integral(double *m,double *r,double *z, double dr, double dz){
+  double integral = 0;
+  int j,i,ind;
+  for (j=0;j<NZ;j++){
+    for (i=0;i<N;i++){
+      ind=magnIndex(i,j);
+      integral+=(1-m[ind+2])*r[i];
+    }
+  }
+  integral*=M_PI*dr*dz;
+  return integral;
 }

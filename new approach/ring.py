@@ -45,7 +45,7 @@ def readFile(fileName):
         fileObj.close()
         return words
 
-m=readFile("./data/vort5.txt");
+m=readFile("./data/vort0.txt");
 m=m[0:-1];
 N=300;
 NZ=200;

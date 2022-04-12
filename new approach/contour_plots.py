@@ -12,19 +12,20 @@ NZ=200;
 dr=0.1;
 dz=0.1;
 centz=NZ/2;
-centr=40;
+centr=30;
 energy_info=[]
 for li in range(START,FILES):
     def readFile(fileName):
             fileObj = open(fileName, "r") #opens the file in read mode
             words = fileObj.readline().split(" ") #puts the file into an array
-            energy_info=fileObj.readline();
+            energy_info=fileObj.readline().strip();
+            time=fileObj.readline().strip();
             fileObj.close()
-            return words,energy_info
+            return words,energy_info,time
     
     
     # m=readFile("./data/vort"+str(li)+".txt");
-    m,e=readFile("./data/vort"+str(li)+".txt");
+    m,e,time=readFile("./data/vort"+str(li)+".txt");
     m=m[0:-1];
     energy_info.append(e);
     r=np.zeros(N);
@@ -58,9 +59,9 @@ for li in range(START,FILES):
     plt.contour(R, Z, mz,levels=[-0.9,-0.5,0,0.9], colors='black');
 
 
-    plt.xlim([0,10]);
-    plt.ylim([-7,7]);
-    plt.title("t="+str(li));
+    plt.xlim([0,7]);
+    plt.ylim([-4,4]);
+    plt.title(time);
     # plt.savefig("./figs/contour_t="+str(li)+".png", dpi=100)
 
 #  ----------------- 3D PLOT ----------------------
