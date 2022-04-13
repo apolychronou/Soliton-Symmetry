@@ -324,7 +324,7 @@ void moving_LLequation(double t, double *m,double *dm,double *r,double *z,double
   double damp[3]={0};
   double f[3]={0};
   double deriv[3]={0};
-  int j=0,i=0,k=0;
+  int j=0,i=0;
   double dotProd=0;
   int ind=0;
   double v=V;

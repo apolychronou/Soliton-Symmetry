@@ -69,7 +69,7 @@ void rk4 ( void dydt ( double t, double u[], double f[], double *r,double *z,dou
   int points,tpoints;
   int filecounter=0;
   char *countername;
-  char filename[27];
+  char filename[42];
   FILE *f=NULL;
   extern int errno;
   errno=0;
@@ -95,10 +95,10 @@ void rk4 ( void dydt ( double t, double u[], double f[], double *r,double *z,dou
   j = 0;
   t[0] = tspan[0];
 
-  sprintf(countername,"%d",0);
+  sprintf(countername,"%hu",(unsigned short)0);
   countername[1]='\0';
   // strcat(filename,"./data/vort");
-  strcpy(filename,"~/Documents/data/vort\0");
+  strcpy(filename,"/home/polychronou/Documents/data/vort\0");
   strcat(filename, countername);
   strcat(filename, ".txt");
   f=fopen(filename,"w+");
@@ -186,16 +186,16 @@ void rk4 ( void dydt ( double t, double u[], double f[], double *r,double *z,dou
     if(j==tpoints){
       if(filecounter>=10){
         countername=(char*)realloc(countername,sizeof(char)*3);
-        sprintf(countername,"%d",filecounter);
+        sprintf(countername,"%hu",(unsigned short)filecounter);
         countername[2]='\0';
       }else{
-      sprintf(countername,"%d",filecounter);
+      sprintf(countername,"%hu",(unsigned short)filecounter);
       countername[1]='\0';
       }
       // strcat(filename,"./data/vort");
-      strcpy(filename,"~/Documents/data/vort\0");
+      strcpy(filename,"/home/polychronou/Documents/data/vort\0");
       strcat(filename, countername);
-      strcat(filename, ".txt");
+      strcat(filename, ".txt\0");
       f=fopen(filename,"w+");
 
       if(f==NULL){

@@ -13,7 +13,7 @@
 #define AN 1  //anisotropy coef
 #define V -0.245 // velocity
 #define PHI M_PI // stereographic projection angle
-#define T_STOP 35 // runge kutta final time
+#define T_STOP 1 // runge kutta final time
 #define A 4 // radius
 #define INIT 0 //
 

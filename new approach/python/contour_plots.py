@@ -25,7 +25,7 @@ for li in range(START,FILES):
     
     
     # m=readFile("./data/vort"+str(li)+".txt");
-    m,e,time=readFile("./data/vort"+str(li)+".txt");
+    m,e,time=readFile("../data/vort"+str(li)+".txt");
     m=m[0:-1];
     energy_info.append(e);
     r=np.zeros(N);
@@ -152,7 +152,7 @@ for i in kinisi:
     out[j][1]=r[i[1]];
     out[j][2]=minim[j];
     j=j+1;
-np.savetxt("./figs/movement.csv", out, delimiter=",");
+# np.savetxt("./figs/movement.csv", out, delimiter=",");
     # plt.savefig("./figs/mphi.png", dpi=100)
 
 # fig = plt.figure()

@@ -16,7 +16,7 @@ def readFile(fileName):
         fileObj.close();
         return header,rows
     
-header,rows=readFile("./data/density.csv");
+header,rows=readFile("../data/density.csv");
 
 r=[];
 e_dm=[];
