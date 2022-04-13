@@ -69,7 +69,7 @@ void rk4 ( void dydt ( double t, double u[], double f[], double *r,double *z,dou
   int points,tpoints;
   int filecounter=0;
   char *countername;
-  char filename[17];
+  char filename[27];
   FILE *f=NULL;
   extern int errno;
   errno=0;
@@ -98,7 +98,7 @@ void rk4 ( void dydt ( double t, double u[], double f[], double *r,double *z,dou
   sprintf(countername,"%d",0);
   countername[1]='\0';
   // strcat(filename,"./data/vort");
-  strcpy(filename,"./data/vort\0");
+  strcpy(filename,"~/Documents/data/vort\0");
   strcat(filename, countername);
   strcat(filename, ".txt");
   f=fopen(filename,"w+");
@@ -193,7 +193,7 @@ void rk4 ( void dydt ( double t, double u[], double f[], double *r,double *z,dou
       countername[1]='\0';
       }
       // strcat(filename,"./data/vort");
-      strcpy(filename,"./data/vort\0");
+      strcpy(filename,"~/Documents/data/vort\0");
       strcat(filename, countername);
       strcat(filename, ".txt");
       f=fopen(filename,"w+");

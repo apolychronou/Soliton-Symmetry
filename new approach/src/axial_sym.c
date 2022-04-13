@@ -1,6 +1,6 @@
 #include "axialSym.h"
 
-int main(int argc, char *argv[]){
+int main(){
   // double *y;
   // double m0[3*N*NZ]={0};
   // double *m0;
@@ -15,7 +15,6 @@ int main(int argc, char *argv[]){
   double a=A,phi=PHI;
   double *y;
   // double *m,*prevm;
-
 
   for (i=0;i<N;i++){
     r[i]=i*dr;

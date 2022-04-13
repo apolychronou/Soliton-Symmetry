@@ -9,20 +9,20 @@
 // #define DP 0.005//dumping coef
 // #define AN 1  //anisotropy coef
 
-float deriv2r(double *m,int i,double dr){
+double deriv2r(double *m,int i,double dr){
   return (m[i+3]+m[i-3]-2*m[i])/(dr*dr);
 
 }
 
-float deriv1r(double *m,int i,double dr){
+double deriv1r(double *m,int i,double dr){
   return (m[i+3]-m[i-3])/(2*dr);
 }
 
-float deriv2z(double *m,int i,double dz){
+double deriv2z(double *m,int i,double dz){
   return (m[i+3*N]+m[i-3*N]-2*m[i])/(dz*dz);
 }
 
-float deriv1z(double *m,int i ,double dz){
+double deriv1z(double *m,int i ,double dz){
   return (m[i+3*N]-m[i-3*N])/(2*dz);
 }
 
