@@ -8,12 +8,12 @@
 
 #define N 300 //r grid
 #define NZ 200 //z grid
-#define DL 0.631 //d-m interaction coef
+#define DL 0.6 //d-m interaction coef
 #define DP 0.005//dumping coef
 #define AN 1  //anisotropy coef
 #define V -0.245 // velocity
 #define PHI M_PI // stereographic projection angle
-#define T_STOP 1 // runge kutta final time
+#define T_STOP 25 // runge kutta final time
 #define A 4 // radius
 #define INIT 0 //
 

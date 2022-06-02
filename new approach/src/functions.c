@@ -10,23 +10,27 @@
 // #define AN 1  //anisotropy coef
 
 double deriv2r(double *m,int i,double dr){
+  /* 2nd derivative in r direction*/
   return (m[i+3]+m[i-3]-2*m[i])/(dr*dr);
-
 }
 
 double deriv1r(double *m,int i,double dr){
+  /* 1st derivative in r direction*/
   return (m[i+3]-m[i-3])/(2*dr);
 }
 
 double deriv2z(double *m,int i,double dz){
+  /* 2nd derivative in z direction*/
   return (m[i+3*N]+m[i-3*N]-2*m[i])/(dz*dz);
 }
 
 double deriv1z(double *m,int i ,double dz){
+/* 1st derivative in z direction*/
   return (m[i+3*N]-m[i-3*N])/(2*dz);
 }
 
 void laplace(double *m,double *r,double *z,double *laplacian,int i, int j,double dr,double dz){
+/* laplace matrix of axially symmetric configuration in cylindrical coords*/
   int ind=magnIndex(i,j);
   laplacian[0]=deriv2r(m,ind,dr)+deriv1r(m,ind,dr)/r[i]-m[ind]/(r[i]*r[i])+
                deriv2z(m,ind,dz);
@@ -37,6 +41,7 @@ void laplace(double *m,double *r,double *z,double *laplacian,int i, int j,double
 }
 
 void vortexRing_init_values(double *m0,double *r,double *z,double a,double phi){
+/*initial configuration of vortex ring assuming exponential term*/
   int i=0,j=0,ind=0;
   double real=0,im=0;
 
@@ -72,12 +77,14 @@ void vortexRing_init_values(double *m0,double *r,double *z,double a,double phi){
 }
 
 int magnIndex(int i, int j){
+/* computes the indices of the magnetization vector*/
   int ind=0;
   ind=3*N*j+3*i;
   return ind;
 }
 
 void LLequation(double t, double *m,double *dm,double *r,double *z,double dr, double dz){
+/* solves the Landau Lifshitz equation assuming axial symmetry */
   double crProd[3]={0};
   double damp[3]={0};
   double f[3]={0};
@@ -128,6 +135,7 @@ void LLequation(double t, double *m,double *dm,double *r,double *z,double dr, do
 }
 
 double DMenergy(double *m, double *r,double *z, double dr,double dz){
+  /*computes the antisymmetric interaction energy*/
   double integral = 0;
   int ind,i,j;
   for(j=0;j<NZ;j++){
@@ -147,6 +155,7 @@ double DMenergy(double *m, double *r,double *z, double dr,double dz){
 }
 
 double EXenergy(double *m, double *r,double *z, double dr,double dz){
+/* computes the exhcange interaction energy*/
   double integral = 0;
   int i=0,j=0,ind=0;
 
@@ -167,6 +176,7 @@ double EXenergy(double *m, double *r,double *z, double dr,double dz){
 }
 
 double ANenergy(double *m, double *r,double *z, double dr,double dz){
+/* computes the anisotropic energy*/
   double integral = 0;
   int j=0,i=0,ind=0;
   for (j=0;j<NZ;j++){
@@ -180,6 +190,10 @@ double ANenergy(double *m, double *r,double *z, double dr,double dz){
 }
 
 void DMenergy_Density(double *m, double *r,double *z, double dr,double dz,double a,double phi){
+/* Calculates the Density of DM energy in the center of the vortex ring, i.e.
+  adds all the DM energy in all r components in z=0, and prints them
+  to density.csv
+*/
   double integral =0;
   int ind,i,j;
   FILE *f;
@@ -203,6 +217,11 @@ void DMenergy_Density(double *m, double *r,double *z, double dr,double dz,double
 }
 
 void DMenergy_zDensity(double *m, double *r,double *z, double dr,double dz,double a,double phi){
+  /* Calculates the Density of DM energy each z instance of the vortex ring, i.e.
+    adds all the DM energy in all r components in from z=0 to z=NZ/2,
+    and prints them z_to density.csv.
+  */
+
   double integral =0;
   int ind=0,i=0,j=0;
   FILE *f;
@@ -226,6 +245,11 @@ void DMenergy_zDensity(double *m, double *r,double *z, double dr,double dz,doubl
 }
 
 void center_angle(double *y,double *r,double *z, double dr, double dz){
+/* it iteratively looks for suitable initial configurations of the ring,
+  the first part computes the energy vs the radius, i.e. $a$ parameter
+
+  the second part computes the energy vs the angle, i.e. $phi$ parameter
+*/
   double a=0,phi=0;
   FILE *f=NULL;
   phi=0;
@@ -257,6 +281,9 @@ void center_angle(double *y,double *r,double *z, double dr, double dz){
 }
 
 void skyrmion_init_values(double *m0,double *r,double *z){
+  /* initial configuration in order to calclulate a skyrmion(ium) on each
+    z[i] of the lattice, resulting in a uniform skyrmion(ium) configuration
+  */
   int i=0,ind=0,j=0;
   // double n1=0,n3=0;
   //
@@ -311,6 +338,9 @@ void skyrmion_init_values(double *m0,double *r,double *z){
 }
 
 void boundary_conditions(double *m){
+  /* neumann boundary conditions for skyrmion(ium) in 3d lattice, need to
+    be called at LLeqaution
+  */
   int i=0;
   for(i=3;i<3*N-3;i++){
     m[i]=m[i+3*N];
@@ -320,6 +350,9 @@ void boundary_conditions(double *m){
 }
 
 void moving_LLequation(double t, double *m,double *dm,double *r,double *z,double dr, double dz){
+/*  solving the LLequation for the moving vortex ring assuming constant velocity
+
+*/
   double crProd[3]={0};
   double damp[3]={0};
   double f[3]={0};
