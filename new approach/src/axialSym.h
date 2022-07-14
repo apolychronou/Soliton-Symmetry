@@ -9,13 +9,16 @@
 #define N 300 //r grid
 #define NZ 200 //z grid
 #define DL 0.6 //d-m interaction coef
-#define DP 0.005//dumping coef
+#define DP 0.001//dumping coef
 #define AN 1  //anisotropy coef
-#define V -0.245 // velocity
+#define V -0.2 // velocity
 #define PHI M_PI // stereographic projection angle
-#define T_STOP 25 // runge kutta final time
-#define A 4 // radius
+#define T_STOP 4 // runge kutta final time
+#define A 2 // radius
 #define INIT 0 //
+#define PFILES 1 // print vort PFILES
+#define PMZINT 0// print mz_integral
+#define NPOINTS 10 // how many time points to print = N/NPOINTS
 
 int magnIndex(int i, int j);
 double deriv2r(double *m,int i,double dr);

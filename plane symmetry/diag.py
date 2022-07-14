@@ -32,7 +32,7 @@ def readFile(fileName):
         return words,energ
 
 phi=pi/2;
-a,energy_info=readFile("./data/skyrm.txt");
+a,energy_info=readFile("./data/skyrmion_init.txt");
 a=a[0:-1];
 j=int(len(a)/3);
 r=np.zeros(j);
@@ -64,7 +64,7 @@ figure = plt.gcf()
 figure.set_size_inches(14, 14);
 matplotlib.rc('xtick', labelsize=20); 
 matplotlib.rc('ytick', labelsize=20);
-
+plt.xlim(0,15)
 # plt.savefig("./figs/phi90.png", dpi=100);
 
 # x=np.zeros(len(r));
@@ -76,18 +76,21 @@ matplotlib.rc('ytick', labelsize=20);
 # for i in range(0,len(r)):
 #     print((x[i]**2+y[i]**2+mz[i]**2));
 
-s=80;
+s=70;
 # print("cylindrical")
 phi=np.linspace(0,2*pi,len(r[:int(s/3):]))
 m1,m2,m3=cartesian(mr[:s:],mphi[:s:],mz[:s:],phi);
 X,Y=cartesian_coord(r[:s], phi);
-l=7;
+l=8;
 fig, ax = plt.subplots(figsize = (14, 12));
 plt1=ax.quiver(X[::l], Y[::l], m1[::l], m2[::l],m3[::l],scale=4.5,headlength=4,\
           headwidth=4,cmap=plt.cm.jet,units='xy');
 plt.colorbar(plt1,ax=ax)
 matplotlib.rc('xtick', labelsize=20) 
 matplotlib.rc('ytick', labelsize=20)
+# plt.xlim(-9,9)
+# plt.ylim(-9,9)
+
 
 # ax.set_aspect('equal')
 # ticks=np.arange(X[::l].min(),X[::l].max(),0.5);

@@ -46,6 +46,10 @@ void rk4 ( void dydt ( double t, double u[], double f[], double *r,double *z,dou
   Output:
 
     double t[n+1], y[(n+1)*m]: the times and solution values.
+
+
+  Disclaimer: The above code was the basis and is changed in order to suite
+  this project's needs
 */
 {
   double dt;
@@ -74,8 +78,13 @@ void rk4 ( void dydt ( double t, double u[], double f[], double *r,double *z,dou
   extern int errno;
   errno=0;
   int errnum;
-
+  int prfiles=PFILES;
+  int pr_mzintegral=PMZINT;
+  double mz_int_arr[NPOINTS+1][2]={0};
+  int mz_int_counter=0;
   countername=(char *)malloc(sizeof(char)*2);
+  float radius=A;
+  float  veloc=V;
 
 
   f0 = ( double * ) malloc ( m * sizeof ( double ) );
@@ -90,45 +99,53 @@ void rk4 ( void dydt ( double t, double u[], double f[], double *r,double *z,dou
 
 
   dt = ( tspan[1] - tspan[0] ) / ( double ) ( n );
-  points=n/10;
+  points=n/NPOINTS;
   tpoints=points;
   j = 0;
   t[0] = tspan[0];
 
-  sprintf(countername,"%hu",(unsigned short)0);
-  countername[1]='\0';
-  // strcat(filename,"./data/vort");
-  strcpy(filename,"/home/polychronou/Documents/data/vort\0");
-  strcat(filename, countername);
-  strcat(filename, ".txt");
-  f=fopen(filename,"w+");
+  if(prfiles==1){
+    sprintf(countername,"%hu",(unsigned short)0);
+    countername[1]='\0';
+    // strcat(filename,"./data/vort");
+    strcpy(filename,"/home/polychronou/Documents/data/vort\0");
+    strcat(filename, countername);
+    strcat(filename, ".txt");
+    f=fopen(filename,"w+");
 
-  if(f==NULL){
-    errnum = errno;
-    fprintf(stderr, "Value of errno: %d\n", errno);
-    perror("Error printed by perror open");
-    fprintf(stderr, "Error opening file: %s\n", strerror( errnum ));
-    exit(1);
+    if(f==NULL){
+      errnum = errno;
+      fprintf(stderr, "Value of errno: %d\n", errno);
+      perror("Error printed by perror open");
+      fprintf(stderr, "Error opening file: %s\n", strerror( errnum ));
+      exit(1);
+    }
   }
-
 
   for ( i = 0; i < m; i++ )
   {
     y[i+j*m] = y0[i];
     y[i+m]=y0[i];
-    fprintf(f, "%lf ", y0[i]);
+    if (prfiles) {fprintf(f, "%lf ", y0[i]);}
     f0[i]=0;f1[i]=0;f2[i]=0;f3[i]=0;
     u0[i]=0;u1[i]=0;u2[i]=0;u3[i]=0;
   }
   time_point=tpoints*1e-3+tspan[0];
-  fprintf(f,"\n");
-  fprintf(f,"Ex=%lf  E_an=%lf  E_dm=%lf  sum=%lf",EXenergy((y0),r,z,dr,dz),
-  ANenergy((y+m),r,z,dr,dz),DMenergy(y+m,r,z,dr,dz),EXenergy((y0),r,z,dr,dz)+
-  ANenergy((y+m),r,z,dr,dz)+DMenergy(y+m,r,z,dr,dz));
-  fprintf(f,"\n");
-  fprintf(f,"t=%1.2lf\n",0.00);
-  filecounter++;
-  fclose(f);
+  if (prfiles==1){
+    fprintf(f,"\n");
+    fprintf(f,"Ex=%lf  E_an=%lf  E_dm=%lf  sum=%lf",EXenergy((y0),r,z,dr,dz),
+    ANenergy((y+m),r,z,dr,dz),DMenergy(y+m,r,z,dr,dz),EXenergy((y0),r,z,dr,dz)+
+    ANenergy((y+m),r,z,dr,dz)+DMenergy(y+m,r,z,dr,dz));
+    fprintf(f,"\n");
+    fprintf(f,"t=%1.2lf\n",0.00);
+    filecounter++;
+    fclose(f);
+  }
+  if (pr_mzintegral==1){
+    mz_int_arr[mz_int_counter][0]=mz_integral(y+m,r,z,dr,dz);
+    mz_int_arr[mz_int_counter][1]=0.00;
+    mz_int_counter++;
+  }
 
   for ( j = 0; j < n; j++ )
   {
@@ -183,28 +200,32 @@ void rk4 ( void dydt ( double t, double u[], double f[], double *r,double *z,dou
        y[i+(j*0+1)*m] = u0[i] + dt * ( f0[i] + 2.0 * f1[i] + 2.0 * f2[i] + f3[i] ) / 6.0;
     }
     norm=0;
-    if(j==tpoints){
-      if(filecounter>=10){
-        countername=(char*)realloc(countername,sizeof(char)*3);
+    if(j==tpoints ){
+      if(prfiles==1){
+        if(filecounter>=10){
+          countername=(char*)realloc(countername,sizeof(char)*3);
+          sprintf(countername,"%hu",(unsigned short)filecounter);
+          countername[2]='\0';
+        }else{
         sprintf(countername,"%hu",(unsigned short)filecounter);
-        countername[2]='\0';
-      }else{
-      sprintf(countername,"%hu",(unsigned short)filecounter);
-      countername[1]='\0';
-      }
-      // strcat(filename,"./data/vort");
-      strcpy(filename,"/home/polychronou/Documents/data/vort\0");
-      strcat(filename, countername);
-      strcat(filename, ".txt\0");
-      f=fopen(filename,"w+");
+        countername[1]='\0';
+        }
+        // strcat(filename,"./data/vort");
+        strcpy(filename,"/home/polychronou/Documents/data/vort\0");
+        strcat(filename, countername);
+        strcat(filename, ".txt\0");
+        f=fopen(filename,"w+");
 
-      if(f==NULL){
-        errnum = errno;
-        fprintf(stderr, "Value of errno: %d\n", errno);
-        perror("Error printed by perror open");
-        fprintf(stderr, "Error opening file: %s\n", strerror( errnum ));
-        exit(1);
+        if(f==NULL){
+          errnum = errno;
+          fprintf(stderr, "Value of errno: %d\n", errno);
+          perror("Error printed by perror open");
+          fprintf(stderr, "Error opening file: %s\n", strerror( errnum ));
+          exit(1);
+        }
       }
+
+
     }
 
     for(i=0; i<m; i=i+3){
@@ -212,7 +233,7 @@ void rk4 ( void dydt ( double t, double u[], double f[], double *r,double *z,dou
       y[i+(j*0+1)*m]/=norm;
       y[i+1+(j*0+1)*m]/=norm;
       y[i+2+(j*0+1)*m]/=norm;
-      if(j==tpoints){
+      if(j==tpoints && prfiles==1){
         fprintf(f, "%lf ", y[i+0+(j*0+1)*m]);
         fprintf(f, "%lf ", y[i+1+(j*0+1)*m]);
         fprintf(f, "%lf ", y[i+2+(j*0+1)*m]);
@@ -222,22 +243,53 @@ void rk4 ( void dydt ( double t, double u[], double f[], double *r,double *z,dou
     e_dm=DMenergy(y+m,r,z,dr,dz);
     e_an=ANenergy(y+m,r,z,dr,dz);
     en=e_ex+e_dm+e_an;
-    if(j==tpoints){
+    if(j==tpoints ){
       time_point=tpoints*1e-3+tspan[0];
-      fprintf(f,"\n");
-      fprintf(f,"Ex=%lf  E_an=%lf  E_dm=%lf  sum=%lf",e_ex,e_an,e_dm,e_ex+e_an+e_dm);
-      fprintf(f,"\n");
-      fprintf(f,"t=%1.2lf\n",time_point);
-      filecounter++;
-      fclose(f);
       tpoints+=points;
-    }
-    if(fabs((en-preven)/preven)<1e-12){
-      printf("No energy variation en=%lf , preven=%lf\n",en,preven);
-      break;
-    }
 
+      if (prfiles==1){
+        fprintf(f,"\n");
+        fprintf(f,"Ex=%lf  E_an=%lf  E_dm=%lf  sum=%lf",e_ex,e_an,e_dm,e_ex+e_an+e_dm);
+        fprintf(f,"\n");
+        fprintf(f,"t=%1.2lf\n",time_point);
+        filecounter++;
+        fclose(f);
+      }
+
+
+      if(fabs((en-preven)/preven)<1e-12){
+        printf("No energy variation en=%lf , preven=%lf\n",en,preven);
+        break;
+      }
+
+    if (pr_mzintegral==1){
+      mz_int_arr[mz_int_counter][0]=mz_integral(y+m,r,z,dr,dz);
+      mz_int_arr[mz_int_counter][1]=time_point;
+      mz_int_counter++;
+    }
   }
+  }
+
+  if (pr_mzintegral==1){
+      f =fopen("/home/polychronou/Documents/data/mz_integral.txt","w+");
+      if(f==NULL){
+        errnum = errno;
+        fprintf(stderr, "Value of errno: %d\n", errno);
+        perror("Error printed by perror open");
+        fprintf(stderr, "Error opening file: %s\n", strerror( errnum ));
+        exit(1);
+      }
+      for (i=0;i<NPOINTS+1;i++){
+        if(i>0){
+          fprintf(f, " ");
+        }
+        fprintf(f,"%lf %lf",mz_int_arr[i][0],mz_int_arr[i][1]);
+      }
+        fprintf(f,"\n");
+        fprintf(f,"radius:%1.3f velocity:%1.3f ",radius,veloc);
+      fclose(f);
+  }
+
 /*
   Free memory.
 */

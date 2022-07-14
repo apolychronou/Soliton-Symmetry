@@ -2,6 +2,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 from math import *
 
+def readFile(fileName):
+        fileObj = open(fileName, "r") #opens the file in read mode
+        words = fileObj.readline().split(" ") #puts the file into an array
+        energy_info=fileObj.readline().strip();
+        time=fileObj.readline().strip();
+        fileObj.close()
+        return words,energy_info,time
+
 FILES=11;
 START=0
 kinisi=np.zeros([FILES,2],type(int));
@@ -12,16 +20,11 @@ NZ=200;
 dr=0.1;
 dz=0.1;
 centz=NZ/2;
-centr=30;
+centr=20;
 energy_info=[]
+
 for li in range(START,FILES):
-    def readFile(fileName):
-            fileObj = open(fileName, "r") #opens the file in read mode
-            words = fileObj.readline().split(" ") #puts the file into an array
-            energy_info=fileObj.readline().strip();
-            time=fileObj.readline().strip();
-            fileObj.close()
-            return words,energy_info,time
+
     
     
     # m=readFile("./data/vort"+str(li)+".txt");
@@ -56,7 +59,7 @@ for li in range(START,FILES):
     fig.set_size_inches(14, 14)
 
     R, Z = np.meshgrid(r, z);
-    plt.contour(R, Z, mz,levels=[-0.9,-0.5,0,0.9], colors='black');
+    plt.contour(R, Z, mz,levels=[-0.9,-0.5,0,0.5,0.9], colors='black');
 
 
     plt.xlim([0,7]);

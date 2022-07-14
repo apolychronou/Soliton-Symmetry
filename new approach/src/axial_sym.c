@@ -49,7 +49,8 @@ int main(){
   // m0=y;
 
   clock_t begin = clock();
-  rk4 ( moving_LLequation, tspan, y, steps, 3*N*NZ, t, y,r,z,dr,dz );
+  // rk4 ( moving_LLequation, tspan, y, steps, 3*N*NZ, t, y,r,z,dr,dz );
+  rk4 ( LLequation, tspan, y, steps, 3*N*NZ, t, y,r,z,dr,dz );
 
   clock_t end = clock();
   double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;

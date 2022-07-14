@@ -78,14 +78,16 @@ i=0;
 fig, ax = plt.subplots(figsize = (16, 14));
 fig2, ax2 = plt.subplots(figsize = (16, 14));
 
-for z_slice in range (92,103,1):
+start=70;
+end=131;
+for z_slice in range (start,end,5):
     i=i+1;
     
     # --------- 2D PLOTS ---------------------
     
     m1,m2,m3=cartesian(mr[z_slice][s1:s2:],mphi[z_slice][s1:s2:],mz[z_slice][s1:s2:],phi);
     
-    l=8;
+    l=5;
     
     
     fig1, ax1 = plt.subplots(figsize = (16, 14));
@@ -111,6 +113,9 @@ for z_slice in range (92,103,1):
     matplotlib.rc('xtick', labelsize=30) 
     matplotlib.rc('ytick', labelsize=30)
     title = ax.set_title("mphi-mz", fontsize='large')
+    ax.set_yticks(np.arange(z[start],z[end],0.2));
+    ax.set_xticks(np.arange(0,r[s2]+0.5,0.5));
+
 
     
 
@@ -121,6 +126,9 @@ for z_slice in range (92,103,1):
     matplotlib.rc('xtick', labelsize=30) 
     matplotlib.rc('ytick', labelsize=30)
     title = ax2.set_title("mr-mz", fontsize='large')
+    ax2.set_yticks(np.arange(z[start],z[end],0.2));
+    ax2.set_xticks(np.arange(0,r[s2]+0.5,0.5));
+
 
 
 

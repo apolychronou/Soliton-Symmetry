@@ -4,10 +4,10 @@
 #include <stdlib.h>
 #include <time.h>
 #include "rk4.h"
-#define N 100
-#define DL 0.57 //d-m interaction coef
+#define N 200
+#define DL 0.6 //d-m interaction coef
 #define DP 0.8 //dumping coef
-#define INITIAL 0
+#define INITIAL 1
 
 
 float second_derivative(double *m,int i,double dr);
@@ -129,8 +129,8 @@ void laplace(double *m,double *r,double *laplacian,int i,double dr){
 void skyrmion_init_values(double *m0,double *r){
   int i,j;
 
-  m0[0]=0;m0[1]=0;m0[2]=1;
-  m0[3*N-1]=1;m0[3*N-2]=0;m0[3*N-3]=0;
+  m0[0]=0;m0[1]=0;m0[2]=-1;
+  m0[3*N-3]=0;m0[3*N-2]=0;m0[3*N-1]=1;
 
   for (i=3;i<3*N-3;i=i+3){
     j=i/3;
@@ -140,16 +140,17 @@ void skyrmion_init_values(double *m0,double *r){
     // m0[i+2]=tanh(r[j]-5);
 
     //---- Belavin Polyakov ----
-    // m0[i+1]=2*r[j]/(1+r[j]*r[j]);
-    // m0[i+2]=(r[j]*r[j]-1)/(r[j]*r[j]+1);
+    m0[i+1]=2*r[j]/(1+r[j]*r[j]);
+    m0[i+2]=(r[j]*r[j]-1)/(r[j]*r[j]+1);
 
     //---- Skyrmionium ----
 
     //--- transform----
-    double n1=1/cosh(r[j]-5);
-    double n3 =tanh(r[j]-5);
-    m0[i+1]=2*n3*n1;
-    m0[i+2]=2*n3*n3-1;
+    // double n1=1/cosh(r[j]-3);
+    // double n3 =tanh(r[j]-3);
+    //
+    // m0[i+0]=2*n3*n1;
+    // m0[i+2]=2*n3*n3-1;
 
     // ---ansatz---
     // double C=(r[j]*r[j]+1)/r[j];
